@@ -7,6 +7,7 @@ const {
 const HttpStatus = require('../helpers/status');
 const { deepCopy } = require('../controllers/user');
 const publisher = require('../helpers/rabbitmq');
+const passport = require('passport');
 
 const AuthController = {
   /**
@@ -67,22 +68,29 @@ const AuthController = {
         return handleFail(res, HttpStatus.PRECONDITION_FAILED, paramsNotValidChecker(req.body.email, req.body.password))
       }
 
-      const email = req.body.email;
-      const password = req.body.password;
-      const user = await UserModel.findOne({ email }).select('+password');
-      console.log('user ', user)
-      if (!user) { return handleError(res, HttpStatus.NOT_FOUND, 'User not found here') }
+      return passport.authenticate('local', { session: false }, async (err, passportUser, info) => {
+        if(err) {
+          console.log(err)
+          return handleError(res, HttpStatus.UNAUTHORIZED, 'Wrong password')
+        }
+    
+        if(passportUser) {
+          // const user = passportUser;
+          // user.token = passportUser.generateJWT();
+    
+          // return res.json({ user: user.toAuthJSON() });
+          const user = passportUser
+          const newUser = deepCopy(user)
 
-      if (!user.validatePassword(password)) {
-        return handleError(res, HttpStatus.UNAUTHORIZED, 'Wrong password')
-      }
-      
-      const jwtToken = createToken(email, user._id)
-      user.token = jwtToken;
-      const newUser = deepCopy(user)
+          // const jwtToken = createToken(email, user._id)
+          // user.token = jwtToken;
 
-      await Promise.all([user.save(), publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser })])
-      return handleSuccess(res, HttpStatus.OK,  newUser)
+          await Promise.all([publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser })])
+          return handleSuccess(res, HttpStatus.OK,  newUser)
+        }
+    
+        return handleError(res, HttpStatus.BAD_REQUEST, 'Username/Password is not correct')
+      })(req, res, next);
     } catch (error) {
       console.log(error)
       return handleError(res, HttpStatus.BAD_REQUEST, 'Could not login user')
