@@ -1,0 +1,21 @@
+{
+    "extends": "airbnb-base",
+    "plugins": ["import"],
+    "rules": {
+        "semi": "off",
+        "max-len": "off",
+        "no-underscore-dangle": "off",
+        "no-console": "off",
+        "prefer-destructuring": "off",
+        "camelcase": "off",
+        "comma-dangle": "off",
+        "no-plusplus":"off",
+        "consistent-return": "off",
+        "no-param-reassign": [
+        "off",
+        {
+            "props": false
+        }
+        ]
+    }
+}
