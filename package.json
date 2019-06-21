@@ -12,7 +12,8 @@
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
-    "test": "NODE_ENV=development nyc mocha test/*.test.js --timeout 120000 --reporter spec --exit --full-trace"
+    "test": "NODE_ENV=development nyc mocha test/*.test.js --timeout 120000 --reporter spec --exit --full-trace",
+    "git": "func() { git add . && git commit -m \"feat: - $1\" && git push origin master; }; func"
   },
   "devDependencies": {
     "chai": "^4.2.0",
