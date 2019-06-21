@@ -20,21 +20,22 @@ const AuthController = {
    */
   async addUser(req, res, next) {
     try {
-      if (paramsNotValid(req.body.email, req.body.name, req.body.email, req.body.password)) {
-        return handleFail(res, HttpStatus.PRECONDITION_FAILED, paramsNotValidChecker(req.body.email, req.body.name, req.body.email, req.body.password))
+      if (paramsNotValid(req.body.email, req.body.name, req.body.password)) {
+        return handleFail(res, HttpStatus.PRECONDITION_FAILED, paramsNotValidChecker(req.body.email, req.body.name, req.body.password))
       }
 
       const userFound = await UserModel.findOne({ email: req.body.email })
       if (userFound) { return handleError(res, HttpStatus.BAD_REQUEST, 'email already exists') }
 
       const domain = req.body.email.split('@')
+      console.log(domain)
       const institution = await InstitutionModel.findOne({ domain: domain[1]})
 
       if (institution) {
         const user = new UserModel({
           name: req.body.name,
           email: req.body.email,
-          role: req.body.role,
+          role: UserModel.UserRole.STUDENT,
           institution: institution._id,
           password: req.body.password
         })
@@ -43,12 +44,11 @@ const AuthController = {
         user.token = jwtToken;
   
         const newUser = deepCopy(user)
-        await user.save()
   
-        // await Promise.all([user.save(), publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser }), publisher.queue('SEND_USER_INSTITUTION_SIGNUP_EMAIL', { user })])
+        await Promise.all([user.save(), publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser }), publisher.queue('SEND_USER_INSTITUTION_SIGNUP_EMAIL', { user })])
         return handleSuccess(res, HttpStatus.OK, newUser)
       } 
-      return handleError(res, HttpStatus.BAD_REQUEST, 'Institution domain does not exist exists')
+      return handleError(res, HttpStatus.BAD_REQUEST, 'Institution domain does not exist')
     } catch (error) {
       handleError(res, HttpStatus.BAD_REQUEST, 'Could not create user')
     }
@@ -70,6 +70,7 @@ const AuthController = {
       const email = req.body.email;
       const password = req.body.password;
       const user = await UserModel.findOne({ email }).select('+password');
+      console.log('user ', user)
       if (!user) { return handleError(res, HttpStatus.NOT_FOUND, 'User not found here') }
 
       if (!user.validatePassword(password)) {
@@ -80,10 +81,10 @@ const AuthController = {
       user.token = jwtToken;
       const newUser = deepCopy(user)
 
-      await user.save()
-      // await Promise.all([user.save(), publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser })])
+      await Promise.all([user.save(), publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser })])
       return handleSuccess(res, HttpStatus.OK,  newUser)
     } catch (error) {
+      console.log(error)
       return handleError(res, HttpStatus.BAD_REQUEST, 'Could not login user')
     }
   },
@@ -109,11 +110,10 @@ const AuthController = {
       });
       user.recover_token = user.encrypt(token);
 
-      await user.save()
-      // await Promise.all([user.save(), publisher.queue('SEND_USER_INSTITUTION_TOKEN_EMAIL', { user, token })])
+      await Promise.all([user.save(), publisher.queue('SEND_USER_INSTITUTION_TOKEN_EMAIL', { user, token })])
       return handleSuccess(res, HttpStatus.OK, token)
     } catch (error) {
-      return handleError(res, HttpStatus.BAD_REQUEST, 'Error getting user', error)
+      return handleError(res, HttpStatus.BAD_REQUEST, 'Error getting user')
     }
   },
 
@@ -135,19 +135,18 @@ const AuthController = {
       const token = req.body.token;
 
       const user = await UserModel.findOne({email}).select('+recover_token');
-      if (!user) { return handleError(res, HttpStatus.NOT_FOUND, 'User not found here', null) }
-      if (!user.validateToken(token)) { return handleError(res, HttpStatus.UNAUTHORIZED, 'Wrong Token', null)}
+      if (!user) { return handleError(res, HttpStatus.NOT_FOUND, 'User not found here') }
+      if (!user.validateToken(token)) { return handleError(res, HttpStatus.UNAUTHORIZED, 'Wrong Token')}
 
       const jwtToken = createToken(email, user._id, user.type);
       user.password = user.encrypt(password);
       user.token = jwtToken;
 
       const newUser = deepCopy(user)
-      await user.save()
-      // await Promise.all([user.save(), publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser })])
+      await Promise.all([user.save(), publisher.queue('ADD_OR_UPDATE_USER_INSTITUTION_CACHE', { newUser })])
       return handleSuccess(res, HttpStatus.OK, null)
     } catch (error) {
-      return handleError(res, HttpStatus.BAD_REQUEST, 'Error reseting password', error)
+      return handleError(res, HttpStatus.BAD_REQUEST, 'Error reseting password')
     }
   }
 

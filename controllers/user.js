@@ -16,7 +16,7 @@ const UserController = {
   async all(req, res, next) {
     try {
       let users = {}
-      const result = await getAsync('premier_users');
+      const result = await getAsync('biblotech_users');
       // console.log(result)
       if (result != null && JSON.parse(result).length > 0) {
         users = JSON.parse(result);
@@ -25,7 +25,7 @@ const UserController = {
         for (let index = 0; index < users.length; index++) {
           users[users[index]._id] = users[index]
         }
-        await client.set('premier_users', JSON.stringify(users));
+        await client.set('biblotech_users', JSON.stringify(users));
       }
       return handleSuccess(res, HttpStatus.OK, 'Users retrieved', users)
     } catch (error) {
@@ -111,17 +111,38 @@ const UserController = {
   },
 
   /**
-   * Redis Cache User
-   * @description Add or Update redis user caching
-   * @param user User object
+   * Add Cache
+   * @description   Add or Update redis caching
+   * @param object  Object to add or update
+   * @param key     Cache key
    */
   async addOrUpdateCache(object, key) {
     try {
       // console.log(user)
-      const premierObject = await getAsync(key);
-      if (premierObject != null && JSON.parse(premierObject).length > 0) {
-        const objects = JSON.parse(premierObject);
+      const biblotechObject = await getAsync(key);
+      if (biblotechObject != null && JSON.parse(biblotechObject).length > 0) {
+        const objects = JSON.parse(biblotechObject);
         objects[object._id] = object
+        await client.set(key, JSON.stringify(objects));
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  },
+
+  /**
+   * Remove Cache
+   * @description   Remove from redis cache
+   * @param id  object id to remove
+   * @param key     Cache key
+   */
+  async removeCache(id, key) {
+    try {
+      // console.log(user)
+      const biblotechObject = await getAsync(key);
+      if (biblotechObject != null && JSON.parse(biblotechObject).length > 0) {
+        const objects = JSON.parse(biblotechObject);
+        delete objects[id]
         await client.set(key, JSON.stringify(objects));
       }
     } catch (err) {

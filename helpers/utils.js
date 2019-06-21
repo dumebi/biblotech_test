@@ -17,7 +17,7 @@ console.log(process.env.MONGO_LAB_DEV, process.env.MONGO_LAB_PROD)
 
 if (process.env.NODE_ENV === 'development') {
   this.config.mongo = `${process.env.MONGO_LAB_DEV}`
-  this.config.host = `http://localhost:${process.env.PORT}/v1/`
+  this.config.host = `http://localhost:${process.env.PORT}/`
   this.config.db = 'biblotech_test'
   this.config.amqp_url = `${process.env.AMQP_URL}`
   this.config.port = `${process.env.PORT}`
@@ -30,6 +30,7 @@ if (process.env.NODE_ENV === 'development') {
   this.config.redis = `${process.env.REDIS_URL}`
 }
 
+console.log(this.config)
 exports.sendMail = (params, callback) => {
   const email = params.email;
   // let from_email = params.from_email;
@@ -79,7 +80,7 @@ const paramsNotValid = (...args) => args
 exports.paramsNotValid = paramsNotValid
 
 exports.paramsNotValidChecker = (...args) => args.map(
-  param => `${param} : ${param !== undefined && param != null && param !== '' ? true : `${param} is required`}`
+  (param) => `${param} : ${param !== undefined && param != null && param !== '' ? true : `${param} is required`}`
 )
 
 /**
@@ -151,7 +152,7 @@ exports.createToken = (email, id) => {
 
 
 exports.handleError = (res, code, message) => {
-  console.log(message, err)
+  console.log(message)
   return res.status(parseInt(code, 10)).json({
     status: 'error',
     message
@@ -159,7 +160,7 @@ exports.handleError = (res, code, message) => {
 }
 
 exports.handleFail = (res, code, data) => {
-  console.log(message, err)
+  console.log(data)
   return res.status(parseInt(code, 10)).json({
     status: 'fail',
     data

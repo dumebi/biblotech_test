@@ -9,6 +9,9 @@ const flash = require('connect-flash');
 const {
   logRequest
 } = require('./helpers/middleware');
+const {
+  handleError
+} = require('./helpers/utils');
 
 const app = express();
 require('dotenv').config();
@@ -32,12 +35,7 @@ app.use('/', require('./routes'));
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   logger.logAPIResponse(req, res);
-  const error = {
-    http: 404,
-    status: 'failed',
-    message: 'Page Not Found'
-  };
-  next(error);
+  return handleError(res, 404, 'Page Not Found')
 });
 
 app.listen(3000, () => console.log(`Open http://localhost:3000 to see a response.`));

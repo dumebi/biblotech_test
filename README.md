@@ -8,6 +8,10 @@ The premise of this challenge is to see the approach you take to:
 
 Please clone this repository and send through your completed coding challenge using whatever you feel fit. We'll take a look and then have a chat about the decisions you took and challenges you encountered. Thanks for taking the time.
 
+## Results
+
+```Collection: https://www.getpostman.com/collections/5df9f47b5c743cfc5e0b```
+
 ## Challenge
 1. Use [Sequelize](http://docs.sequelizejs.com/manual/installation/getting-started) or [Mongoose](https://mongoosejs.com/) to define:
 

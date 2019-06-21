@@ -33,35 +33,35 @@ services:
     volumes:
       - ./external/rabbitmq:/data
 
-  backend:
-    container_name: test-biblotech
-    restart: always
-    build: 
-      dockerfile: Dockerfile
-      context: .
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - JWT_SECRET=mysuperjwtsecret
-      - APP_NAME="biblotech_test"
-      - MONGO_LAB_PROD=mongodb+srv://dikejude49:dyke2010@cluster0-edqiz.mongodb.net/backend_test
-      - MONGO_LAB_DEV="mongodb://mongo/biblotech_test"
-      - NODE_ENV=production
-      - REDIS_URL=redis://redis
-      - AMQP_URL=amqp://rabbitmq
-      - PORT=3000
-    links:
-      - rabbitmq
-    depends_on:
-      - mongo
-      - redis
-      - rabbitmq
-    networks:
-      - test
-    command: npm run dev
-    ports:
-      - 3000:3000
+  # backend:
+  #   container_name: test-biblotech
+  #   restart: always
+  #   build: 
+  #     dockerfile: Dockerfile
+  #     context: .
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - JWT_SECRET=mysuperjwtsecret
+  #     - APP_NAME="biblotech_test"
+  #     - MONGO_LAB_PROD=mongodb+srv://dikejude49:dyke2010@cluster0-edqiz.mongodb.net/backend_test
+  #     - MONGO_LAB_DEV=mongodb://mongo/biblotech_test
+  #     - NODE_ENV=production
+  #     - REDIS_URL=redis://redis
+  #     - AMQP_URL=amqp://rabbitmq
+  #     - PORT=3000
+  #   links:
+  #     - rabbitmq
+  #   depends_on:
+  #     - mongo
+  #     - redis
+  #     - rabbitmq
+  #   networks:
+  #     - test
+  #   command: npm run dev && npm run test
+  #   ports:
+  #     - 3000:3000
 
 networks:
   test:
