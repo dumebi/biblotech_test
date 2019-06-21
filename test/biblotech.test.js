@@ -6,13 +6,12 @@ const http = require('http');
 const app = require('../index')
 require('dotenv').config();
 const { config } = require('../helpers/utils');
-
-const UserModel = require('../models/user');
+const status = require('../helpers/status');
 
 const api = supertest(`${config.host}`)
 console.log(`${config.host}`)
 
-describe('Admin Test', () => {
+describe('Biblotech Test', () => {
   let user_id = ''
   let user_jwt = ''
   let user_token = ''
@@ -319,30 +318,36 @@ describe('Admin Test', () => {
       })
   }).timeout(10000)
 
-  // it('Should get a user', (done) => {
-  //   api
-  //     .get(`users/${user_id}`)
-  //     .set('Accept', 'application/json')
-  //     .set('authorization', `Bearer ${admin_jwt}`)
-  //     .expect(200)
-  //     .end((err, res) => {
-  //       expect(res.body.status).to.equal('success')
-  //       expect(res.body.data).to.be.instanceof(Object)
-  //       done()
-  //     })
-  // }).timeout(10000)
+  /**
+   * Exceptions test
+   */
 
-  // it('Should get all users', (done) => {
-  //   api
-  //     .get('users')
-  //     .set('Accept', 'application/json')
-  //     // .set('authorization', `Bearer ${admin_jwt}`)
-  //     .expect(200)
-  //     .end((err, res) => {
-  //       expect(res.body.status).to.equal('success')
-  //       expect(res.body.data).to.be.instanceof(Array)
-  //       done()
-  //     })
-  // }).timeout(10000)
+  it('Should get 412 preconditioned failed on create institution', (done) => {
+    const name = "Uniben"
+    const url = "uniben.edu.ng"
+    api
+      .post('admin/institutions')
+      .set('Accept', 'application/json')
+      .send({
+        name,
+        url,
+      })
+      .expect(status.PRECONDITION_FAILED)
+      .end((err, res) => {
+        expect(res.body.status).to.equal('fail')
+        done()
+      })
+  }).timeout(10000)
+
+  it('Should get status 404 on book not found', (done) => {
+    api
+      .get('admin/books/'+institution_id_1)
+      .set('Accept', 'application/json')
+      .expect(status.NOT_FOUND)
+      .end((err, res) => {
+        expect(res.body.status).to.equal('error')
+        done()
+      })
+  }).timeout(10000)
 })
 
