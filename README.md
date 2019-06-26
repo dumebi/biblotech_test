@@ -12,6 +12,11 @@ Please clone this repository and send through your completed coding challenge us
 
 ```Collection: https://www.getpostman.com/collections/5df9f47b5c743cfc5e0b```
 
+Start using `docker-compose up --build`
+
+To run tests, comment out backend service in `docker-compose.yml`. 
+Start using `docker-compose up --build`, then in a seperate terminal, run `npm run test`
+
 ## Challenge
 1. Use [Sequelize](http://docs.sequelizejs.com/manual/installation/getting-started) or [Mongoose](https://mongoosejs.com/) to define:
 
