@@ -13,10 +13,5 @@ npm-debug.log*
 
 #Environment
 yarn.lock
-.env
-
-#Docker
-Dockerfile
-
 # Externals
 external
